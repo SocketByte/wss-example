@@ -13,7 +13,7 @@ export default function NotificationCenter() {
 
   return (
     <div
-      className="fixed bottom-0 left-0 right-0 flex flex-col items-end p-4 space-y-2 pointer-events-none"
+      className="fixed top-0 left-0 right-0 flex flex-col items-end p-4 space-y-2 pointer-events-none"
       id="notification-center-box"
       ref={ref}
     >
