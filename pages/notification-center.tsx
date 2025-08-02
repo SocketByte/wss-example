@@ -13,19 +13,20 @@ export default function NotificationCenter() {
 
   return (
     <div
-      className="fixed top-0 left-0 right-0 flex flex-col items-end p-4 space-y-2 pointer-events-none"
+      className="fixed top-0 left-0 right-0 flex flex-col items-end space-y-2 pointer-events-none"
       id="notification-center-box"
       ref={ref}
     >
       <AnimatePresence initial={false}>
-        {notifications.slice(0, 3).map((notification) => (
+        {notifications.slice(-3).map((notification) => (
           <motion.div
+            layout
             key={notification.id}
-            className="pointer-events-auto flex items-center gap-4 w-full max-w-sm p-4  dark:bg-background/60 border dark:border-neutral-800 rounded-xl shadow-lg"
-            initial={{ opacity: 0, y: 40 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 40 }}
-            transition={{ duration: 0.25, ease: "easeInOut" }}
+            className="pointer-events-auto flex items-center gap-4 w-full max-w-sm p-4 dark:bg-background/60 border dark:border-neutral-800 rounded-xl shadow-lg"
+            initial={{ opacity: 0, x: 100 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: 100 }}
+            transition={{ duration: 0.2, ease: "easeInOut" }}
           >
             <Avatar>
               <AvatarImage
