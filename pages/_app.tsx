@@ -20,7 +20,6 @@ export default function App({ Component, pageProps }: AppProps) {
         ShellIPC.getInstance().send("handshake", {
           client: "web",
           version: "1.0.0",
-          
           monitorId: parseInt(router.query.monitorId as string, 10),
           widgetName: router.query.widgetName || "",
         });
