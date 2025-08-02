@@ -9,7 +9,8 @@ export default function NotificationCenter() {
   const ref = useRef<HTMLDivElement | null>(null);
   useAutoClickRegion(ref);
 
-  const { notifications, dismissNotification } = useNotifications();
+  const { notifications, dismissNotification, invokeNotificationAction } =
+    useNotifications();
 
   return (
     <div
@@ -44,6 +45,22 @@ export default function NotificationCenter() {
               <p className="text-sm text-gray-600 dark:text-muted-foreground">
                 {notification.body}
               </p>
+              {notification.actions.length > 0 && (
+                <div className="mt-2 flex gap-2">
+                  {notification.actions.map((action, index) => (
+                    <button
+                      key={index}
+                      className="px-3 py-1 text-sm bg-blue-500 text-white rounded hover:bg-blue-600 transition"
+                      onClick={() => {
+                        invokeNotificationAction(notification.id, action);
+                        dismissNotification(notification.id);
+                      }}
+                    >
+                      {action}
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
             <button
               onClick={() => dismissNotification(notification.id)}

@@ -49,8 +49,16 @@ export const useNotifications = () => {
     });
   };
 
+  const invokeNotificationAction = (id: number, action: string) => {
+    ShellIPC.getInstance().send("notifd-notification-action", {
+      id,
+      action,
+    });
+  };
+
   return {
     notifications,
     dismissNotification,
+    invokeNotificationAction,
   };
 };
