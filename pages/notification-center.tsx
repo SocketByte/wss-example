@@ -4,6 +4,7 @@ import { useNotifications } from "@/wss-react/useNotifications";
 import { X } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
 
 export default function NotificationCenter() {
   const ref = useRef<HTMLDivElement | null>(null);
@@ -40,27 +41,31 @@ export default function NotificationCenter() {
             </Avatar>
             <div className="flex-1">
               <h4 className="text-sm font-semibold dark:text-foreground">
-                {notification.summary}
+                {notification.summary.length > 20
+                  ? `${notification.summary.slice(0, 20)}...`
+                  : notification.summary}
               </h4>
               <p className="text-sm text-gray-600 dark:text-muted-foreground">
-                {notification.body}
+                {notification.body.length > 60
+                  ? `${notification.body.slice(0, 60)}...`
+                  : notification.body}
               </p>
-              {notification.actions.length > 0 && (
-                <div className="mt-2 flex gap-2">
-                  {notification.actions.map((action, index) => (
-                    <button
-                      key={index}
-                      className="px-3 py-1 text-sm bg-blue-500 text-white rounded hover:bg-blue-600 transition"
-                      onClick={() => {
-                        invokeNotificationAction(notification.id, action);
-                        dismissNotification(notification.id);
-                      }}
+              <div className="mt-2 flex gap-2">
+                {Object.entries(notification.actions).map(
+                  ([actionName, actionValue]) => (
+                    <Button
+                      key={actionName}
+                      variant="secondary"
+                      size="sm"
+                      onClick={() =>
+                        invokeNotificationAction(notification.id, actionName)
+                      }
                     >
-                      {action}
-                    </button>
-                  ))}
-                </div>
-              )}
+                      {actionValue}
+                    </Button>
+                  ),
+                )}
+              </div>
             </div>
             <button
               onClick={() => dismissNotification(notification.id)}

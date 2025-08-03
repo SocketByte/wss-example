@@ -1,4 +1,4 @@
-import React, { useRef } from "react";
+import React, { useEffect, useRef } from "react";
 import { Bluetooth, Code, Sun, Wifi } from "lucide-react";
 import { Geist } from "next/font/google";
 import {

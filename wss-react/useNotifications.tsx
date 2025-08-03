@@ -7,6 +7,17 @@ export interface Notification {
   appIcon: string;
   summary: string;
   body: string;
+  actions: Record<string, string>;
+  hints: Record<string, any>;
+  expireTimeout: number;
+}
+
+export interface NotificationRawActions {
+  id: number;
+  appName: string;
+  appIcon: string;
+  summary: string;
+  body: string;
   actions: string[];
   hints: Record<string, any>;
   expireTimeout: number;
@@ -18,8 +29,25 @@ export const useNotifications = () => {
   useEffect(() => {
     const ipc = ShellIPC.getInstance();
 
-    const handleNotification = (notification: Notification) => {
-      setNotifications((prev) => [...prev, notification]);
+    const handleNotification = (notification: NotificationRawActions) => {
+      setNotifications((prev) => [
+        ...prev,
+        {
+          ...notification,
+          // actions are in format: ["default", "Open", "mail-mark-read", "Mark as read"]
+          // convert to { default: "Open", "mail-mark-read": "Mark as read" }
+          actions: notification.actions.reduce(
+            (acc: Record<string, string>, action: string, index: number) => {
+              if (index % 2 === 0) {
+                // even index is the action name
+                acc[action] = notification.actions[index + 1] || "";
+              }
+              return acc;
+            },
+            {},
+          ),
+        },
+      ]);
     };
 
     const handleNotificationClosed = ({
