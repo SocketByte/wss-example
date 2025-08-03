@@ -15,7 +15,7 @@ export default function NotificationCenter() {
 
   return (
     <div
-      className="fixed top-0 left-0 right-0 flex flex-col items-end space-y-2 pointer-events-none"
+      className="fixed top-0 left-0 right-0 flex flex-col items-end space-y-1 pointer-events-none"
       id="notification-center-box"
       ref={ref}
     >
@@ -24,7 +24,7 @@ export default function NotificationCenter() {
           <motion.div
             layout
             key={notification.id}
-            className="pointer-events-auto flex items-center gap-4 w-full max-w-sm p-4 dark:bg-background/60 border dark:border-neutral-800 rounded-xl shadow-lg"
+            className="pointer-events-auto flex items-center gap-4 w-full max-w-sm p-4 dark:bg-background/60 border dark:border-neutral-800 rounded-4xl shadow-lg"
             initial={{ opacity: 0, x: 100 }}
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: 100 }}

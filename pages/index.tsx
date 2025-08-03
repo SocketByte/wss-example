@@ -42,7 +42,7 @@ export default function Home() {
           <HoverCardContent
             id="hover-popup-example"
             ref={ref}
-            className="w-[400px] h-[400px] shadow-none p-4 text-white dark:text-foreground bg-background/20 dark:bg-background/60 dark:border-neutral-800 border-0 dark:border rounded-lg mt-2"
+            className="w-[400px] h-[400px] shadow-none p-4 text-white dark:text-foreground bg-background/20 dark:bg-background/60 dark:border-neutral-800 border-0 dark:border rounded-4xl mt-2"
           >
             <div className="flex flex-col gap-2 select-none">
               <h3 className="text-lg font-semibold">Hover Card Example</h3>
