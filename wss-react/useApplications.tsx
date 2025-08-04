@@ -9,7 +9,7 @@ export class Application {
   //   iconBase64Large: string;
   //   iconBase64Small: string;
 
-  id: number;
+  id: string;
   name: string;
   comment: string;
   exec: string;
