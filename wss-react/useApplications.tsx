@@ -17,7 +17,7 @@ export class Application {
   iconBase64Small: string;
 
   constructor(
-    id: number,
+    id: string,
     name: string,
     comment: string,
     exec: string,

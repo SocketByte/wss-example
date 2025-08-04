@@ -10,6 +10,7 @@ import { Input } from "@/components/ui/input";
 import { ShellIPC } from "wss-js";
 import { cn } from "@/lib/utils";
 import { stagger } from "motion";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 const loadImageFromBase64 = (base64: string) => {
   return `data:image/png;base64,${base64}`;
@@ -55,6 +56,8 @@ export default function AppLauncher() {
         });
         setVisibleApps(applications || []);
         setFocusedAppId("");
+        setSearchTerm("");
+        setIsSearching(false);
       }
       setShowLauncher(false);
     }
@@ -67,6 +70,9 @@ export default function AppLauncher() {
       if (event.key === "Escape") {
         setClickedKey(event.key);
         setShowLauncher(false);
+        setFocusedAppId("");
+        setSearchTerm("");
+        setIsSearching(false);
         ShellIPC.getInstance().send("widget-set-keyboard-interactivity", {
           interactive: false,
         });
@@ -143,6 +149,11 @@ export default function AppLauncher() {
       className="w-full flex flex-row justify-center items-end mt-4"
       autoFocus
     >
+      <p>
+        {mouseX} {mouseY} {showLauncher ? "true" : "false"} {monitorInfo?.width}{" "}
+        {monitorInfo?.height}{" "}
+        {clickedKey ? `Clicked: ${clickedKey}` : "Not clicked"}
+      </p>
       <AnimatePresence>
         {showLauncher && (
           <motion.div
@@ -154,8 +165,8 @@ export default function AppLauncher() {
               id="app-launcher"
               ref={ref}
               layout
-              className="p-2 bg-background/60 rounded-t-4xl w-full absolute bottom-20 overflow-hidden"
-              initial={{ y: 30, opacity: 0, scale: 0.95 }}
+              className="p-2 bg-background rounded-t-4xl w-full absolute bottom-20 overflow-hidden"
+              initial={{ y: 1500, opacity: 1 }}
               animate={{
                 y: 0,
                 opacity: 1,
@@ -167,17 +178,15 @@ export default function AppLauncher() {
               }}
               exit={{
                 height: 0,
-                y: 30,
-                opacity: 0,
-                scale: 0.95,
+                y: 1500,
+                opacity: 1,
                 transition: { duration: 0.1, ease: "easeInOut" },
               }}
             >
               {visibleApps.length > 0 ? (
                 <motion.div
                   layout
-                  className="grid grid-cols-1 gap-3 px-2 mt-4 overflow-y-scroll max-h-[80vh] scrollbar-thin scrollbar-thumb-rounded-full scrollbar-thumb-gray-500 scrollbar-track-gray-200 dark:scrollbar-thumb-gray-700 dark:scrollbar-track-gray-800"
-                  ref={scrollRef}
+                  className="grid grid-cols-1 gap-3 px-2 mt-4 scrollbar-thin scrollbar-thumb-rounded-full scrollbar-thumb-gray-500 scrollbar-track-gray-200 dark:scrollbar-thumb-gray-700 dark:scrollbar-track-gray-800"
                   initial="hidden"
                   animate="visible"
                   exit="hidden"
@@ -194,95 +203,98 @@ export default function AppLauncher() {
                     },
                   }}
                 >
-                  <AnimatePresence>
-                    {visibleApps
-                      .sort((a, b) => a.name.localeCompare(b.name))
-                      .sort((a, b) => {
-                        if (isSearching) {
-                          const aStartsWith = a.name
+                  <ScrollArea
+                    className="w-full h-full max-h-[80vh] pr-6"
+                    ref={scrollRef}
+                  >
+                    <AnimatePresence>
+                      {visibleApps
+                        .sort((a, b) => a.name.localeCompare(b.name))
+                        .sort((a, b) => {
+                          if (isSearching) {
+                            const aStartsWith = a.name
+                              .toLowerCase()
+                              .startsWith(searchTerm.toLowerCase());
+                            const bStartsWith = b.name
+                              .toLowerCase()
+                              .startsWith(searchTerm.toLowerCase());
+                            return aStartsWith === bStartsWith
+                              ? 0
+                              : aStartsWith
+                                ? -1
+                                : 1;
+                          }
+                          return 0;
+                        })
+                        .map((app) => {
+                          const matchesSearch = app.name
                             .toLowerCase()
-                            .startsWith(searchTerm.toLowerCase());
-                          const bStartsWith = b.name
-                            .toLowerCase()
-                            .startsWith(searchTerm.toLowerCase());
-                          return aStartsWith === bStartsWith
-                            ? 0
-                            : aStartsWith
-                              ? -1
-                              : 1;
-                        }
-                        return 0;
-                      })
-                      .map((app) => {
-                        const matchesSearch = app.name
-                          .toLowerCase()
-                          .includes(searchTerm.toLowerCase());
-                        return matchesSearch ? (
-                          <motion.div
-                            layout
-                            initial={{ opacity: 0, y: 15, scale: 0.95 }}
-                            animate={{
-                              opacity: 1,
-                              y: 0,
-                              scale: 1,
-                              transition: { duration: 0.1, ease: "easeOut" },
-                            }}
-                            exit={{
-                              opacity: 0,
-                              y: 15,
-                              scale: 0.95,
-                              transition: { duration: 0.1, ease: "easeIn" },
-                            }}
-                            data-app-id={app.id}
-                            key={app.id}
-                            className={cn(
-                              "flex flex-row items-start py-3 px-4 gap-4 rounded-4xl cursor-pointer select-none",
-                              {
-                                "bg-background shadow-lg":
-                                  focusedAppId === app.id,
-                                "hover:bg-background/80":
-                                  focusedAppId !== app.id,
-                              },
-                            )}
-                            onClick={() => {
-                              ShellIPC.getInstance().send(
-                                "appd-application-run",
+                            .includes(searchTerm.toLowerCase());
+                          return matchesSearch ? (
+                            <motion.div
+                              layout
+                              initial={{ opacity: 0, y: 15, scale: 0.95 }}
+                              animate={{
+                                opacity: 1,
+                                y: 0,
+                                scale: 1,
+                                transition: { duration: 0.1, ease: "easeOut" },
+                              }}
+                              exit={{
+                                opacity: 0,
+                                y: 15,
+                                scale: 0.95,
+                                transition: { duration: 0.1, ease: "easeIn" },
+                              }}
+                              data-app-id={app.id}
+                              key={app.id}
+                              className={cn(
+                                "flex flex-row items-start py-3 px-4 gap-4 rounded-4xl cursor-pointer select-none",
                                 {
-                                  appId: focusedAppId,
-                                  prefix: "app2unit -- ",
+                                  "bg-secondary shadow-lg":
+                                    focusedAppId === app.id,
                                 },
-                              );
-                              setShowLauncher(false);
-                              ShellIPC.getInstance().send(
-                                "widget-set-keyboard-interactivity",
-                                {
-                                  interactive: false,
-                                },
-                              );
-                            }}
-                            onMouseEnter={() => setFocusedAppId(app.id)}
-                          >
-                            <Avatar>
-                              <AvatarImage
-                                src={loadImageFromBase64(app.iconBase64Large)}
-                                alt={app.name}
-                              />
-                              <AvatarFallback>
-                                {app.name.charAt(0).toUpperCase()}
-                              </AvatarFallback>
-                            </Avatar>
-                            <div className="flex flex-col justify-center">
-                              <span className="text-sm">{app.name}</span>
-                              <span className="text-xs text-muted-foreground">
-                                {app.comment.length > 80
-                                  ? `${app.comment.slice(0, 80)}...`
-                                  : app.comment}
-                              </span>
-                            </div>
-                          </motion.div>
-                        ) : null;
-                      })}
-                  </AnimatePresence>
+                              )}
+                              onClick={() => {
+                                ShellIPC.getInstance().send(
+                                  "appd-application-run",
+                                  {
+                                    appId: focusedAppId,
+                                    prefix: "app2unit -- ",
+                                  },
+                                );
+                                setShowLauncher(false);
+                                ShellIPC.getInstance().send(
+                                  "widget-set-keyboard-interactivity",
+                                  {
+                                    interactive: false,
+                                  },
+                                );
+                              }}
+                              onMouseEnter={() => setFocusedAppId(app.id)}
+                            >
+                              <Avatar>
+                                <AvatarImage
+                                  src={loadImageFromBase64(app.iconBase64Large)}
+                                  alt={app.name}
+                                />
+                                <AvatarFallback>
+                                  {app.name.charAt(0).toUpperCase()}
+                                </AvatarFallback>
+                              </Avatar>
+                              <div className="flex flex-col justify-center">
+                                <span className="text-sm">{app.name}</span>
+                                <span className="text-xs text-muted-foreground">
+                                  {app.comment.length > 80
+                                    ? `${app.comment.slice(0, 80)}...`
+                                    : app.comment}
+                                </span>
+                              </div>
+                            </motion.div>
+                          ) : null;
+                        })}
+                    </AnimatePresence>
+                  </ScrollArea>
                 </motion.div>
               ) : (
                 <motion.div
@@ -297,19 +309,31 @@ export default function AppLauncher() {
             </motion.div>
 
             <motion.div
-              className="w-full z-10 absolute bottom-0 p-4 bg-background/60"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: 20 }}
-              transition={{ duration: 0.25, ease: "easeInOut" }}
+              className="w-full z-10 absolute bottom-0 p-4 bg-background"
               id="button-app-launcher"
               ref={buttonRef}
+              initial={{ y: 500, opacity: 0 }}
+              animate={{
+                y: 0,
+                opacity: 1,
+                scale: 1,
+                transition: {
+                  duration: 0.15,
+                  ease: [0.4, 0, 0.2, 1], // easeInOut cubic-bezier
+                },
+              }}
+              exit={{
+                height: 0,
+                y: 500,
+                opacity: 0,
+                transition: { duration: 0.1, ease: "easeInOut" },
+              }}
             >
               <Input
                 type="text"
                 placeholder="Search applications..."
                 autoFocus
-                className="h-[50px] text-white dark:text-foreground dark:bg-background/60 dark:border-neutral-800 border-0 rounded-lg z-20"
+                className="h-[50px] text-white dark:text-foreground dark:border-neutral-800 border-0 rounded-lg"
                 onChange={(e) => {
                   const term = e.target.value.toLowerCase();
                   setSearchTerm(term);

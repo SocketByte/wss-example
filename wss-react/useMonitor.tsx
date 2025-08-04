@@ -21,7 +21,9 @@ export const useMonitor = () => {
     };
 
     ipc.listen("monitor-info-response", handleMonitorInfo);
-    ipc.send("monitor-info-request", {});
+    setTimeout(() => {
+      ipc.send("monitor-info-request", {});
+    }, 1000);
 
     return () => {
       ipc.unlisten("monitor-info-response", handleMonitorInfo);
