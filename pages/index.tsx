@@ -17,8 +17,8 @@ const geistSans = Geist({
 
 export default function Home() {
   const ref = useRef<HTMLDivElement>(null);
-  useAutoClickRegion(ref);
-
+  useAutoClickRegion(ref); 
+ 
   return (
     <div
       className={`${geistSans.className} font-sans w-full h-[50px] px-4 absolute top-0 left-0 right-0 bg-background/20 
@@ -37,7 +37,7 @@ export default function Home() {
               className="text-white  bg-white/10 border-0 hover:bg-white/20 hover:text-white"
             >
               Trigger
-            </Button>
+            </Button> 
           </HoverCardTrigger>
           <HoverCardContent
             id="hover-popup-example"

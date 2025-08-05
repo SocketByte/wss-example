@@ -149,11 +149,6 @@ export default function AppLauncher() {
       className="w-full flex flex-row justify-center items-end mt-4"
       autoFocus
     >
-      <p>
-        {mouseX} {mouseY} {showLauncher ? "true" : "false"} {monitorInfo?.width}{" "}
-        {monitorInfo?.height}{" "}
-        {clickedKey ? `Clicked: ${clickedKey}` : "Not clicked"}
-      </p>
       <AnimatePresence>
         {showLauncher && (
           <motion.div
